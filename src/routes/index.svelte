@@ -7,8 +7,14 @@
 </script>
 
 <svelte:head>
-  <title>Area Explorer</title>
-  <meta name="description" content="Explore census data for places in England and Wales.">
+  <title>Census Area Explorer</title>
+  <meta name="description" content="">
+  <meta property="og:title" content="Census Area Explorer" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://bothness.github.io/area-explorer/" />
+	<meta property="og:image:type" content="image/jpeg" />
+	<meta property="og:description" content="Explore census data for places in England and Wales." />
+	<meta name="description" content="Explore census data for places in England and Wales." />
 </svelte:head>
 
 <Section column="wide">

@@ -1,4 +1,5 @@
 <script>
+  import { assets } from "$app/paths";
 	import { getContext } from 'svelte';
 
 	export let theme = getContext('theme');
@@ -10,12 +11,12 @@
 			{#if theme == 'dark'}
 			<img
 				class="logo-img"
-				src="./img/ons-logo-neg-en.svg"
+				src="{assets}/img/ons-logo-neg-en.svg"
 				alt="Office for National Statistics" />
 			{:else}
 			<img
 				class="logo-img"
-				src="./img/ons-logo-black-en.svg"
+				src="{assets}/img/ons-logo-black-en.svg"
 				alt="Office for National Statistics" />
 			{/if}
 		</a>

@@ -6,7 +6,7 @@
     "dev": "svelte-kit dev",
     "build": "svelte-kit build && touch build/.nojekyll",
     "preview": "svelte-kit preview",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build -t true"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^1.0.0-next.0",

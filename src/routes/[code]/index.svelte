@@ -149,7 +149,7 @@
 	}
 
 	function menuSelect(ev) {
-		goto(`${base}/${ev.detail.code}`, {noscroll: true});
+		goto(`${base}/${ev.detail.value}`, {noscroll: true});
 	}
 
 	function onResize() {
@@ -162,8 +162,14 @@
 </script>
 
 <svelte:head>
-  <title>{place.name}</title>
-	<meta name="description" content="Explore census data for {place.name}.">
+  <title>{place.name} Census Data</title>
+	<meta name="description" content="">
+  <meta property="og:title" content="{place.name} Census Data" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://bothness.github.io/area-explorer/{place.code}/" />
+	<meta property="og:image:type" content="image/jpeg" />
+	<meta property="og:description" content="Explore census data for {place.name}." />
+	<meta name="description" content="Explore census data for {place.name}." />
 </svelte:head>
 
 <Section column="wide">
