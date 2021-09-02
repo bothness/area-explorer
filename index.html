@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="/favicon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Area Explorer</title><meta name="description" content="Explore census data for places in England and Wales." data-svelte="svelte-5f3z7i">
+
+		
+
+		<link rel="modulepreload" href="https://bothness.github.io/area-explorer/_app/start-5dec0b70.js">
+		<link rel="modulepreload" href="https://bothness.github.io/area-explorer/_app/chunks/vendor-0db0d0ac.js">
+		<link rel="modulepreload" href="https://bothness.github.io/area-explorer/_app/chunks/singletons-12a22614.js">
+		<link rel="modulepreload" href="https://bothness.github.io/area-explorer/_app/chunks/paths-28a87002.js">
+		<link rel="modulepreload" href="https://bothness.github.io/area-explorer/_app/pages/__layout.svelte-e8dcd16f.js">
+		<link rel="modulepreload" href="https://bothness.github.io/area-explorer/_app/chunks/config-408aebb3.js">
+		<link rel="modulepreload" href="https://bothness.github.io/area-explorer/_app/pages/index.svelte-c189440b.js">
+		<link rel="modulepreload" href="https://bothness.github.io/area-explorer/_app/chunks/Section-ff42548d.js">
+		<link rel="stylesheet" href="https://bothness.github.io/area-explorer/_app/assets/start-61d1577b.css">
+		<link rel="stylesheet" href="https://bothness.github.io/area-explorer/_app/assets/vendor-3331f240.css">
+		<link rel="stylesheet" href="https://bothness.github.io/area-explorer/_app/assets/pages/__layout.svelte-68b6fdb7.css">
+		<link rel="stylesheet" href="https://bothness.github.io/area-explorer/_app/assets/pages/index.svelte-2edd4979.css">
+
+		<script type="module">
+			import { start } from "https://bothness.github.io/area-explorer/_app/start-5dec0b70.js";
+			start({
+				target: document.querySelector("#svelte"),
+				paths: {"base":"/area-explorer","assets":"https://bothness.github.io/area-explorer"},
+				session: {},
+				host: location.host,
+				route: true,
+				spa: false,
+				trailing_slash: "never",
+				hydrate: {
+					status: 200,
+					error: null,
+					nodes: [
+						import("https://bothness.github.io/area-explorer/_app/pages/__layout.svelte-e8dcd16f.js"),
+						import("https://bothness.github.io/area-explorer/_app/pages/index.svelte-c189440b.js")
+					],
+					page: {
+						host: location.host, // TODO this is redundant
+						path: "/",
+						query: new URLSearchParams(""),
+						params: {}
+					}
+				}
+			});
+		</script>
+	</head>
+	<body>
+		<div id="svelte">
+
+
+<nav class="warning svelte-cnxfzf"><div class="col-wide middle"><strong>Warning! This is a prototype. Data likely to contain inaccuracies.</strong></div>
+</nav>
+<nav style="border-bottom-color: #777; background-color: #fff;" class="svelte-1az9tmh"><div class="col-wide middle"><a href="https://www.ons.gov.uk/" class="svelte-1az9tmh"><picture class="svelte-1az9tmh"><img src="./img/ons-logo-pos-en.svg" alt="Office for National Statistics" class="svelte-1az9tmh"></picture></a></div>
+</nav>
+
+
+
+<section style="color: #222; background-color: #fff"><div class="col-wide"><div class="block svelte-8rrpcq"><span class="text-big title svelte-8rrpcq">Area Explorer</span>
+    <p>Select a country or region to start exploring</p>
+    <ul><li><a href="/area-explorer/K04000001"><strong>England and Wales</strong></a></li>
+      <ul><li><a href="/area-explorer/E92000001">England</a></li>
+        <ul><li><a href="/area-explorer/E12000001">North East</a></li>
+          <li><a href="/area-explorer/E12000002">North West</a></li>
+          <li><a href="/area-explorer/E12000003">Yorkshire and The Humber</a></li>
+          <li><a href="/area-explorer/E12000004">East Midlands</a></li>
+          <li><a href="/area-explorer/E12000005">West Midlands</a></li>
+          <li><a href="/area-explorer/E12000006">East of England</a></li>
+          <li><a href="/area-explorer/E12000007">London</a></li>
+          <li><a href="/area-explorer/E12000008">South East</a></li>
+          <li><a href="/area-explorer/E12000009">South West</a></li></ul>
+        <li><a href="/area-explorer/W92000004">Wales</a></li></ul></ul></div></div></section>
+
+<footer style="color: #222; background-color: #f0f0f0;" class="svelte-137hs7y"><div class="col-wide" data-analytics="footer"><a href="https://www.ons.gov.uk/" class="svelte-137hs7y"><img class="logo-img svelte-137hs7y" src="./img/ons-logo-black-en.svg" alt="Office for National Statistics"></a>
+		<ul class="svelte-137hs7y"><li class="svelte-137hs7y"><a href="https://www.ons.gov.uk/aboutus/contactus" class="link svelte-137hs7y" style="color: #222">Contact us</a></li>
+			<li class="svelte-137hs7y"><a href="https://www.ons.gov.uk/help/privacynotice" class="link svelte-137hs7y" style="color: #222">Cookies and privacy</a></li></ul>
+		<hr style="border-top-color: #777" class="svelte-137hs7y">
+		<div class="license svelte-137hs7y"><svg class="ogl-img svelte-137hs7y" viewBox="0 0 59 24" xmlns="http://www.w3.org/2000/svg"><title>UK Open Government Licence</title><path fill="#777" d="M59,17.5v6.2H45.3V4l6.2-3.9v17.4H59z M33.6,13h9.8v10.7H43L40.6,21c-2.1,1.8-4.9,3-7.9,3 c-4.4,0-8.3-2.4-10.4-6.1c-2.1,3.6-5.9,6.1-10.4,6.1C5.4,23.9,0,18.6,0,12C0,5.4,5.4,0.1,11.9,0.1c4.5,0,8.4,2.5,10.4,6.1 c2.1-3.6,5.9-6.1,10.4-6.1c4.2,0,7.9,2.2,10.1,5.5l-5.2,3.3c-1-1.6-2.8-2.7-4.8-2.7C29.6,6.2,27,8.8,27,12s2.6,5.8,5.8,5.8 c1.5,0,2.8-0.5,3.8-1.4L33.6,13z M17.7,12c0-3.2-2.6-5.7-5.8-5.7S6.2,8.8,6.2,12s2.6,5.8,5.8,5.8S17.7,15.2,17.7,12z"></path></svg>
+			All content is available under the
+			<a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" class="link svelte-137hs7y" target="_blank" rel="noopener" style="color: #222">Open Government Licence v3.0</a>, 
+			except where otherwise stated
+		</div></div>
+</footer>
+
+
+
+			
+		</div>
+	</body>
+</html>
