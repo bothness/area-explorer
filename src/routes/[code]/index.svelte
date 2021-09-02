@@ -45,7 +45,7 @@
 	}
 </script>
 <script>
-  import { base } from "$app/paths";
+  import { base, assets } from "$app/paths";
   import { goto } from '$app/navigation';
 	import { suffixer, changeClass, changeStr, adjectify } from "$lib/utils";
 	import { types, codes, mapStyle, mapSources, mapLayers, mapPaint } from "$lib/config";
@@ -166,7 +166,7 @@
 	<meta name="description" content="">
   <meta property="og:title" content="{place.name} Census Data" />
 	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://bothness.github.io/area-explorer/{place.code}/" />
+	<meta property="og:url" content="{assets}/{place.code}/" />
 	<meta property="og:image:type" content="image/jpeg" />
 	<meta property="og:description" content="Explore census data for {place.name}." />
 	<meta name="description" content="Explore census data for {place.name}." />

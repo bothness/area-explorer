@@ -1,4 +1,5 @@
 <script>
+  import { assets } from "$app/paths";
 	import { setContext } from "svelte";
   import "../app.css";
 	import { themes } from "$lib/config";
@@ -11,6 +12,10 @@
   let theme = "light";
   setContext("theme", themes[theme]);
 </script>
+
+<svelte:head>
+  <link rel="icon" href="{assets}/favicon.png" />
+</svelte:head>
 
 <Warning/>
 <ONSHeader/>
