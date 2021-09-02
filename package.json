@@ -1,0 +1,27 @@
+{
+  "name": "area-explorer",
+  "version": "0.0.1",
+  "homepage": "http://bothness.github.io/area-explorer",
+  "scripts": {
+    "dev": "svelte-kit dev",
+    "build": "svelte-kit build && touch build/.nojekyll",
+    "preview": "svelte-kit preview",
+    "deploy": "gh-pages -d build"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-node": "^1.0.0-next.0",
+    "@sveltejs/adapter-static": "^1.0.0-next.17",
+    "@sveltejs/kit": "next",
+    "gh-pages": "^3.2.3",
+    "mapbox-gl": "1.x",
+    "parse-color": "^1.0.0",
+    "svelte": "^3.34.0",
+    "svelte-preprocess": "^4.7.3"
+  },
+  "dependencies": {
+    "d3-dsv": "latest",
+    "d3-scale": "latest",
+    "layercake": "latest"
+  },
+  "type": "module"
+}
