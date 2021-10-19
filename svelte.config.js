@@ -11,8 +11,12 @@ const config = {
 			// Options below are defaults
 			pages: 'build',
 			assets: 'build',
-			fallback: null
+			fallback:'404.html'
 		}),
+		prerender: {
+			enabled: false
+		},
+		ssr: false,
 		paths: {
 			assets: production ? 'https://bothness.github.io/area-explorer' : '',
 			base: production ? '/area-explorer' : ''

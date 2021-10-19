@@ -34,6 +34,8 @@
 	export let order = null;
 	export let maxzoom = null;
 	export let minzoom = null;
+
+	export let isChild = false;
 	
 	const { getMap } = getContext('map');
 	const map = getMap();
@@ -117,8 +119,10 @@
 	if (click) {
 		map.on('click', id, (e) => {
       if (e.features.length > 0 && !ignoreClick) {
-				if (highlighted.includes(e.features[0].id)) {
-					selected = e.features[0].id;
+				let clicked = e.features[0].id;
+
+				if ((isChild && highlighted.includes(clicked)) || (!isChild && selected != clicked)) {
+					selected = clicked;
 
 					dispatch('select', {
 						code: selected
@@ -170,14 +174,17 @@
 	if (hover) {
 		map.on('mousemove', id, (e) => {
       if (e.features.length > 0) {
-				if (highlighted.includes(e.features[0].id)) {
-					if (hovered) {
-          	map.setFeatureState(
-            	{ source: source, sourceLayer: sourceLayer, id: hovered },
-            	{ hovered: false }
-          	);
-        	}
-					hovered = hoveredPrev = e.features[0].id;
+				let hoveredID = e.features[0].id;
+
+				if (hovered) {
+          map.setFeatureState(
+            { source: source, sourceLayer: sourceLayer, id: hovered },
+          	{ hovered: false }
+        	);
+      	}
+
+				if ((isChild && highlighted.includes(hoveredID)) || (!isChild && selected != hoveredID)) {
+					hovered = hoveredPrev = hoveredID;
 
         	map.setFeatureState(
         	  { source: source, sourceLayer: sourceLayer, id: hovered },
@@ -190,7 +197,7 @@
 					// Show popup
 					popup
 						.setLngLat(e.lngLat)
-						.setHTML(`<strong>${e.features[0].properties[name]}</strong>`)
+						.setHTML(`<strong>${e.features[0].properties[name] ? e.features[0].properties[name] : e.features[0].properties[code]}</strong>`)
 						.addTo(map);
 				} else {
 					// Remove popup

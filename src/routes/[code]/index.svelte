@@ -7,7 +7,6 @@
 	async function loadArea(code, options) {
 		let res = await fetch(urls.places + code + '.json');
 		let json = await res.json();
-		json.children = options.filter(d => d.parent == code);
 
 		return json;
 	}
@@ -17,7 +16,6 @@
 
 		let res = await fetch(urls.places + code + '.json');
 		let json = await res.json();
-		json.children = options.filter(d => d.parent == code);
 
 		return json;
 	}
@@ -72,7 +70,11 @@
 		hovered:  null
 	};
 
+	let isChild = {};
+	Object.keys(mapLayers).forEach(key => isChild[key] = false);
+
 	function makeData(props) {
+		const sum = (a, b) => a + b;
 		let code = props[0];
 		let val = props[1];
 		
@@ -83,7 +85,11 @@
 		let keys = codes[code].map(d => d.code);
 		let labels = codes[code].map(d => d.label ? d.label : d.code);
 		let data = keys.map((key, i) => {
-			return {x: labels[i], y: source[key], ew: sourceEW[key], prev: sourcePrev[key]};
+			if (Array.isArray(key)) {
+				return {x: labels[i], y: key.map(k => source[k]).reduce(sum, 0), ew: key.map(k => sourceEW[k]).reduce(sum, 0), prev: key.map(k => sourcePrev[k]).reduce(sum, 0)};
+			} else {
+				return {x: labels[i], y: source[key], ew: sourceEW[key], prev: sourcePrev[key]};
+			} 
 		});
 		
 		return data;
@@ -99,14 +105,13 @@
 		let prev = JSON.parse(JSON.stringify(active));
 		let code = place.code;
 		let type = place.type;
-		let siblings = options.filter(d => d.type == type && d.code != code).map(d => d.code);
 		let children = place.children[0] ? place.children.map(d => d.code) : [];
-		let childType = children[0] ? place.children[0].type : null;
+		let childType = place.type == 'rgn' ? 'cty' : children[0] ? place.children[0].type : null;
 
 		active.selected = code;
 		active.type = type;
 		active.childType = childType;
-		active.highlighted = [...siblings, ...children];
+		active.highlighted = children;
 
 		let keys = Object.keys(mapLayers);
 		let fillProps = ['fill-color', 'fill-opacity'];
@@ -122,6 +127,7 @@
 				if (place.parents[0]) {
 					map.setLayoutProperty(key + '-self', 'visibility', visibility);
 				}
+				isChild[key] = key == childType ? true : false;
 			});
 
 			// Set new paint properties
@@ -159,6 +165,7 @@
 	$: w && onResize();
 	$: chartLabel = overtime ? '2001 comparison' : place && place.parents[0] ? 'England and Wales comparison' : null;
 	$: place && update(place);
+	$: hasChange = place && place.data.population.value.change.all != null;
 </script>
 
 <svelte:head>
@@ -213,23 +220,25 @@
 			{place.name} is a {types[place.type].name.toLowerCase()} in {place.parents[0].type == 'rgn' ? 'the ' + place.parents[0].name : place.parents[0].name}.
 			The {types[place.type].name.toLowerCase()}'s population of {place.data.population.value['2011'].all.toLocaleString()} at the time of the 2011 Census made it the country's {place.data.population.value_rank['2011'].all.toLocaleString()}{suffixer(place.data.population.value_rank['2011'].all)} largest.
 			{/if}
+			{#if hasChange}
 			{place.name} saw a population {place.data.population.value.change.all > 0 ? 'increase' : 'decrease'} of {changeStr(place.data.population.value.change.all, '%', 1)} from 2001.
+			{/if}
 	</div>
 	<div>
 		<span class="text-bold">Population</span>
 		<br/>
 		<span class="text-big">{place.data.population.value['2011'].all.toLocaleString()}</span><br/>
-		{#if overtime}
-		<span class="text-small"><Em><span class="{changeClass(place.data.population.value.change.all)}">{changeStr(place.data.population.value.change.all, '%', 1)}</span></Em> since 2001</span>
-		{#if place.type != 'ew' && place.type != 'ctry'}
-		<div class="text-small muted">{place.data.population.value_rank.change.all.toLocaleString()}{suffixer(place.data.population.value_rank.change.all)} largest increase of {place.count.toLocaleString()} {types[place.type].pl.toLowerCase()}</div>
-		{/if}
-		{:else}
+		{#if !overtime}
 		{#if place.type != 'ew'}
 		<span class="text-small"><Em>{place.data.population.value['2011'].all / ew.data.population.value['2011'].all >= 0.001 ? ((place.data.population.value['2011'].all / ew.data.population.value['2011'].all) * 100).toFixed(1) : '<0.1'}%</Em> of England and Wales population</span>
 		{#if place.type != 'ctry'}
 		<div class="text-small muted">{place.data.population.value_rank['2011'].all.toLocaleString()}{suffixer(place.data.population.value_rank['2011'].all)} largest population of {place.count.toLocaleString()} {types[place.type].pl.toLowerCase()}</div>
 		{/if}
+		{/if}
+		{:else if hasChange}
+		<span class="text-small"><Em><span class="{changeClass(place.data.population.value.change.all)}">{changeStr(place.data.population.value.change.all, '%', 1)}</span></Em> since 2001</span>
+		{#if !['ew', 'ctry'].includes(place.type)}
+		<div class="text-small muted">{place.data.population.value_rank.change.all.toLocaleString()}{suffixer(place.data.population.value_rank.change.all)} largest increase of {place.count.toLocaleString()} {types[place.type].pl.toLowerCase()}</div>
 		{/if}
 		{/if}
 	</div>
@@ -238,15 +247,15 @@
 		<br/>
 		<span class="inline text-big">{place.data.density.value['2011'].all.toLocaleString()}</span>
 		<span class="inline condensed text-small">people<br/>per hectare</span><br/>
-		{#if overtime}
-		<span class="text-small"><Em><span class="{changeClass(place.data.population.value.change.all)}">{changeStr(place.data.population.value.change.all, '%', 1)}</span></Em> since 2001</span>
-		{#if place.type != 'ew' && place.type != 'ctry'}
-		<div class="text-small muted">{place.data.population.value_rank.change.all.toLocaleString()}{suffixer(place.data.population.value_rank.change.all)} largest increase of {place.count.toLocaleString()} {types[place.type].pl.toLowerCase()}</div>
-		{/if}
-		{:else}
-		{#if place.type != 'ew' && place.type != 'ctry'}
+		{#if !overtime}
+		{#if !['ew', 'ctry'].includes(place.type)}
 		<span class="text-small"><Em>{adjectify(place.count, place.data.density.value_rank['2011'].all)}</Em> average density</span>
 		<div class="text-small muted">{place.data.density.value_rank['2011'].all.toLocaleString()}{suffixer(place.data.density.value_rank['2011'].all)} highest density of {place.count.toLocaleString()} {types[place.type].pl.toLowerCase()}</div>
+		{/if}
+		{:else if hasChange}
+		<span class="text-small"><Em><span class="{changeClass(place.data.population.value.change.all)}">{changeStr(place.data.population.value.change.all, '%', 1)}</span></Em> since 2001</span>
+		{#if !['ew', 'ctry'].includes(place.type)}
+		<div class="text-small muted">{place.data.population.value_rank.change.all.toLocaleString()}{suffixer(place.data.population.value_rank.change.all)} largest increase of {place.count.toLocaleString()} {types[place.type].pl.toLowerCase()}</div>
 		{/if}
 		{/if}
 	</div>
@@ -255,11 +264,13 @@
 	</div>
 	<div id="map" style="grid-column: span {cols == 2 ? 2 : cols && cols > 2 ? cols - 1 : 1};">
 		<Map bind:map location={{bounds: place.bounds}} options={{fitBoundsOptions: {padding: 20}}} style={mapStyle}>
-			<MapSource {...mapSources.wd}>
+			{#each ['oa', 'lsoa', 'msoa'] as key}
+			<MapSource {...mapSources[key]}>
 				<MapLayer
-					{...mapLayers.wd}
-					id="wd-fill"
+					{...mapLayers[key]}
+					id="{key}-fill"
 					type="fill"
+					isChild={isChild[key]}
 					click={true}
 					selected={active.selected}
 					on:select={mapSelect}
@@ -267,31 +278,33 @@
 					highlighted={active.highlighted}
 					hover={true}
 					hovered={active.hovered}
-					layout={{visibility: active.type == 'wd' || active.childType == 'wd' ? 'visible' : 'none'}}
-					paint={active.type == 'wd' ? mapPaint['fill-self'] : active.childType == 'wd' ? mapPaint['fill-child'] : mapPaint.fill}/>
+					layout={{visibility: active.type == key || active.childType == key ? 'visible' : 'none'}}
+					paint={active.type == key ? mapPaint['fill-self'] : active.childType == key ? mapPaint['fill-child'] : mapPaint.fill}/>
 				<MapLayer
-					{...mapLayers.wd}
-					id="wd-bounds"
+					{...mapLayers[key]}
+					id="{key}-bounds"
 					type="line"
 					selected={active.selected}
 					highlight={true}
 					highlighted={active.highlighted}
-					layout={{visibility: active.type == 'wd' || active.childType == 'wd' ? 'visible' : 'none'}}
-					paint={active.type == 'wd' ? mapPaint['line-active'] : active.childType == 'wd' ? mapPaint['line-child'] : mapPaint.line}/>
+					layout={{visibility: active.type == key || active.childType == key ? 'visible' : 'none'}}
+					paint={active.type == key ? mapPaint['line-active'] : active.childType == key ? mapPaint['line-child'] : mapPaint.line}/>
 				<MapLayer
-					{...mapLayers.wd}
-					id="wd-self"
+					{...mapLayers[key]}
+					id="{key}-self"
 					type="line"
 					selected={active.selected}
-					layout={{visibility: active.type == 'wd' ? 'visible' : 'none'}}
-					paint={active.type == 'wd' ? mapPaint['line-self'] : mapPaint.line}/>
+					layout={{visibility: active.type == key ? 'visible' : 'none'}}
+					paint={active.type == key ? mapPaint['line-self'] : mapPaint.line}/>
 			</MapSource>
+			{/each}
 			<MapSource {...mapSources.crd}>
-				{#each Object.keys(mapLayers).filter(d => d != 'wd') as key}
+				{#each ['lad', 'cty', 'rgn', 'ctry'] as key}
 				<MapLayer
 					{...mapLayers[key]}
 					id={key + "-fill"}
 					type="fill"
+					isChild={isChild[key]}
 					click={true}
 					selected={active.selected}
 					on:select={mapSelect}
@@ -334,7 +347,7 @@
 		</span>
 	</div>
 	<div>
-		<span class="text-bold">{place.children[0] ? place.children[0].typepl : 'Areas'} within {place.name}</span><br/>
+		<span class="text-bold">{place.children[0] ? types[place.children[0].type].pl : 'Areas'} within {place.name}</span><br/>
 		<span class="text-small">
 		{#if place.children[0]}
 		{#each place.children as child, i}
@@ -353,50 +366,48 @@
 		<br/>
 		<span class="inline text-big">{place.data.agemed.value['2011'].all.toLocaleString()}</span>
 		<span class="inline condensed text-small">years</span><br/>
-		{#if overtime}
-		<span class="text-small"><Em><span class="{changeClass(place.data.agemed.value['2011'].all - place.data.agemed.value['2001'].all)}">{changeStr(place.data.agemed.value['2011'].all - place.data.agemed.value['2001'].all, ' years', 0)}</span></Em> since 2001</span>
-		{#if place.type != 'ew' && place.type != 'ctry'}
-		<div class="text-small muted">{place.data.agemed.value_rank.change.all.toLocaleString()}{suffixer(place.data.agemed.value_rank.change.all)} largest increase of {place.count.toLocaleString()} {types[place.type].pl.toLowerCase()}</div>
-		{/if}
-		{:else}
-		{#if place.type != 'ew' && place.type != 'ctry'}
+		{#if !overtime && !['ew', 'ctry'].includes(place.type)}
 		<span class="text-small"><Em>{adjectify(place.count, place.data.agemed.value_rank['2011'].all, ['older', 'younger'])}</Em> average age</span>
 		<div class="text-small muted">{place.data.agemed.value_rank['2011'].all.toLocaleString()}{suffixer(place.data.agemed.value_rank['2011'].all)} oldest median age of {place.count.toLocaleString()} {types[place.type].pl.toLowerCase()}</div>
+		{:else if hasChange}
+		<span class="text-small"><Em><span class="{changeClass(place.data.agemed.value['2011'].all - place.data.agemed.value['2001'].all)}">{changeStr(place.data.agemed.value['2011'].all - place.data.agemed.value['2001'].all, ' years', 0)}</span></Em> since 2001</span>
+		{#if !['ew', 'ctry'].includes(place.type)}
+		<div class="text-small muted">{place.data.agemed.value_rank.change.all.toLocaleString()}{suffixer(place.data.agemed.value_rank.change.all)} largest increase of {place.count.toLocaleString()} {types[place.type].pl.toLowerCase()}</div>
 		{/if}
 		{/if}
 	</div>
 	<div>
 		<span class="text-bold">Age profile</span><br/>
 		<div class="chart" style="height: 100px;">
-			<ColChart data="{place && makeData(['age10yr', 'perc', '2011'])}" zKey="{overtime ? 'prev' : place.type != 'ew' ? 'ew' : null}"/>
+			<ColChart data="{place && makeData(['age10yr', 'perc', '2011'])}" zKey="{overtime && hasChange ? 'prev' : !overtime && place.type != 'ew' ? 'ew' : null}"/>
 		</div>
-		{#if chartLabel}
+		{#if chartLabel && !(overtime && !hasChange)}
 		<div class="text-small muted"><li class="line"></li> {chartLabel}</div>
 		{/if}
 	</div>
 	<div>
 		<span class="text-bold">Sex</span><br/>
-		<StackedBarChart data="{place && makeData(['population', 'perc', '2011'])}" zKey="{overtime ? 'prev' : place.type != 'ew' ? 'ew' : null}" label={chartLabel}/>
+		<StackedBarChart data="{place && makeData(['population', 'perc', '2011'])}" zKey="{overtime && hasChange ? 'prev' : !overtime && place.type != 'ew' ? 'ew' : null}" label={chartLabel}/>
 	</div>
 	<div>
 		<span class="text-bold">Ethnicity</span><br/>
-		<StackedBarChart data="{place && makeData(['ethnicity', 'perc', '2011'])}" zKey="{overtime ? 'prev' : place.type != 'ew' ? 'ew' : null}" label={chartLabel}/>
+		<StackedBarChart data="{place && makeData(['ethnicity', 'perc', '2011'])}" zKey="{overtime && hasChange ? 'prev' : !overtime && place.type != 'ew' ? 'ew' : null}" label={chartLabel}/>
 	</div>
 	<div>
 		<span class="text-bold">General health</span><br/>
-		<StackedBarChart data="{place && makeData(['health', 'perc', '2011'])}" zKey="{overtime ? 'prev' : place.type != 'ew' ? 'ew' : null}" label={chartLabel}/>
+		<StackedBarChart data="{place && makeData(['health', 'perc', '2011'])}" zKey="{overtime && hasChange ? 'prev' : !overtime && place.type != 'ew' ? 'ew' : null}" label={chartLabel}/>
 	</div>
 	<div>
 		<span class="text-bold">Employment</span><br/>
-		<StackedBarChart data="{place && makeData(['economic', 'perc', '2011'])}" zKey="{overtime ? 'prev' : place.type != 'ew' ? 'ew' : null}" label={chartLabel}/>
+		<StackedBarChart data="{place && makeData(['economic', 'perc', '2011'])}" zKey="{overtime && hasChange ? 'prev' : !overtime && place.type != 'ew' ? 'ew' : null}" label={chartLabel}/>
 	</div>
 	<div>
 		<span class="text-bold">Travel to work</span><br/>
-		<StackedBarChart data="{place && makeData(['travel', 'perc', '2011'])}" zKey="{overtime ? 'prev' : place.type != 'ew' ? 'ew' : null}" label={chartLabel}/>
+		<StackedBarChart data="{place && makeData(['travel', 'perc', '2011'])}" zKey="{overtime && hasChange ? 'prev' : !overtime && place.type != 'ew' ? 'ew' : null}" label={chartLabel}/>
 	</div>
 	<div>
 		<span class="text-bold">Home ownership</span><br/>
-		<StackedBarChart data="{place && makeData(['tenure', 'perc', '2011'])}" zKey="{overtime ? 'prev' : place.type != 'ew' ? 'ew' : null}" label={chartLabel}/>
+		<StackedBarChart data="{place && makeData(['tenure', 'perc', '2011'])}" zKey="{overtime && hasChange ? 'prev' : !overtime && place.type != 'ew' ? 'ew' : null}" label={chartLabel}/>
 	</div>
 </div>
 {/if}
